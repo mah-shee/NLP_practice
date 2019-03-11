@@ -30,7 +30,7 @@ with open('hightemp.txt') as f:
 
 ## 12
 https://eng-entrance.com/linux-command-cut
-cutはテキストファイルを横方向に分割するコマンドだ。
+cutはテキストファイルを横方向に分割するコマンド。
 `cut -f 項目数 -d 区切り文字 ファイル名`
 でそれぞれの行で必要な情報を切り出した列を出力できる。
 
@@ -146,4 +146,59 @@ unit = math.ceil(count / n)
 for i in range(n):
     with open("file" + str(i + 1) + ".txt", "w") as f:
         f.write("".join(lines[i * unit : (i + 1) * unit]))
+```
+
+
+## 17
+https://eng-entrance.com/linux-command-sort
+sortコマンドはファイルの内容を並び替えることができる。
+
+https://eng-entrance.com/linux-command-uniq
+ファイルから重複する行を削除するコマンド。
+
+cutコマンドで1項目目を先に出しておいて、uniqコマンドで重複した列を削除するためにsortコマンドで並び替えておく。
+`cut -f 1 hightemp.txt | sort | uniq`
+
+set()関数で集合型にすることで重複を削除。
+
+### 回答
+```
+print(set([line.split("\t")[0] for line in open("hightemp.txt")]))
+```
+
+## 18
+https://eng-entrance.com/linux-command-sort
+sortコマンドは-r, -kオプションを付けることでそれぞれ逆順でのソート、ソートする項目の指定ができる。
+`sort -r -k 3 hightemp.txt`
+
+https://note.nkmk.me/python-list-sort-sorted/
+sorted()メソッドを利用することで元のリストを変更せずに新しいリストを作って並べ替えることができる。
+
+### 回答
+```
+with open("hightemp.txt") as f:
+    lines = f.readlines()
+
+for line in sorted(lines, key=lambda x: x.split()[2], reverse=True):
+    print(line, end="")
+```
+
+
+## 19
+uniqコマンドに-cオプションを付けることで重複した行数も表示してくれる。
+最初のsortコマンドはuniqで重複した行を削除するため、最後のsort -rはuniqで重複が消されたものを再度並べ替えるため。
+`cut -f 1 hightemp.txt | sort | uniq -q | sort -r`
+
+https://note.nkmk.me/python-collections-counter/
+標準ライブラリcollectionsのCounterクラスを使って出現回数の多い順に要素を取得できる。
+Counterオブジェクトはキーに要素, 出現回数という辞書型、
+Counterにあるmost_common()メソッドを使うと(要素, 出現回数)という形のタプルを出現回数順に並べたリストを返す。
+```
+from collections import Counter
+
+col1 = [line.split("\t")[0] for line in open("hightemp.txt")]
+
+counter = Counter(col1)
+for word, count in counter.most_common():
+    print(word + ", " + str(count))
 ```
