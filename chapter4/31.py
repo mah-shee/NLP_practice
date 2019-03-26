@@ -15,7 +15,7 @@ def parse_neko():
         out_file.write(mecab.parse(data_file.read()))
 
 
-def neco_lines():
+def neko_lines():
     """「吾輩は猫である」の形態素解析結果のジェネレータ
     「吾輩は猫である」の形態素解析結果を順次読み込んで、各形態素を
     ・表層形（surface）
@@ -31,11 +31,11 @@ def neco_lines():
         morphemes = []
         for line in file_parsed:
 
-            # 表層形はtab区切り、それ以外は','区切りでバラす
             cols = line.split("\t")
+            if len(cols) < 2:
+                continue
             res_cols = cols[1].split(",")
 
-            # 辞書作成、リストに追加
             morpheme = {
                 "surface": cols[0],
                 "base": res_cols[6],
@@ -44,24 +44,17 @@ def neco_lines():
             }
             morphemes.append(morpheme)
 
-            # 品詞細分類1が'句点'なら文の終わりと判定
             if res_cols[1] == "句点":
                 yield morphemes
                 morphemes = []
 
 
-# 形態素解析
 parse_neko()
-print("parse done")
 
-# 1文ずつ辞書のリストを取得し動詞を抽出
-verbs_test = []  # 確認用の出現順リスト
-lines = neco_lines()
-print("代入")
-for line in lines:
-    for morpheme in line:
-        if morpheme.get("pos") == "動詞":
-            verbs_test.append(morpheme.get("surface"))  # 確認用の出現順リストにも追加
+verbs_test = []
 
-# 確認しやすいようverbs_testを使って出現順にソートして表示
+for line in neko_lines():
+    verbs_test.extend(
+        [morpheme["surface"] for morpheme in line if morpheme["pos"] == "動詞"]
+    )
 print(verbs_test)
